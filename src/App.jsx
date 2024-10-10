@@ -1,7 +1,7 @@
 import React, { useReducer, useState } from 'react';
 import './App.css'; 
-import { DeleteOutlined, HeartOutlined, SisternodeOutlined } from '@ant-design/icons';
-import { Badge, Space, Switch } from 'antd';
+import { DeleteOutlined, HeartOutlined, SisternodeOutlined, EditOutlined } from '@ant-design/icons';
+import { Modal, Input, Button } from 'antd';
 
 const initialState = {
   todos: [],
@@ -27,6 +27,13 @@ const reducer = (state, action) => {
           todo.id === action.payload ? { ...todo, saved: !todo.saved } : todo
         ),
       };
+    case 'UPDATE':
+      return {
+        ...state,
+        todos: state.todos.map(todo =>
+          todo.id === action.payload.id ? { ...todo, text: action.payload.text } : todo
+        ),
+      };
     default:
       return state;
   }
@@ -35,6 +42,9 @@ const reducer = (state, action) => {
 const App = () => {
   const [state, dispatch] = useReducer(reducer, initialState);
   const [inputValue, setInputValue] = useState('');
+  const [isModalVisible, setIsModalVisible] = useState(false); // Modalni ko‘rsatish holati
+  const [editTodo, setEditTodo] = useState(null); // Tahrirlanayotgan todo holati
+  const [editedText, setEditedText] = useState(''); // Modalda tahrirlanayotgan matn
 
   const handleCreate = () => {
     if (inputValue) {
@@ -59,6 +69,23 @@ const App = () => {
 
   const handleToggleSaved = id => {
     dispatch({ type: 'TOGGLE_SAVED', payload: id });
+  };
+
+  const showEditModal = (todo) => {
+    setEditTodo(todo);
+    setEditedText(todo.text);
+    setIsModalVisible(true);
+  };
+
+  const handleOk = () => {
+    if (editTodo) {
+      dispatch({ type: 'UPDATE', payload: { id: editTodo.id, text: editedText } });
+    }
+    setIsModalVisible(false);
+  };
+
+  const handleCancel = () => {
+    setIsModalVisible(false);
   };
 
   return (
@@ -86,10 +113,13 @@ const App = () => {
             <span>{todo.text}</span>
             <div>
               <button className={`button ${todo.liked ? 'liked' : ''}`} onClick={() => handleToggleLiked(todo.id)}>
-              <HeartOutlined  style={{ fontSize: '20px' }}/>
+                <HeartOutlined style={{ fontSize: '20px' }}/>
               </button>
               <button className="button" onClick={() => handleToggleSaved(todo.id)}>
-              <SisternodeOutlined  style={{ fontSize: '20px' }}/>
+                <SisternodeOutlined style={{ fontSize: '20px' }}/>
+              </button>
+              <button className="button" onClick={() => showEditModal(todo)}>
+                <EditOutlined style={{ fontSize: '20px' }} />
               </button>
               <button className="button delete-button" onClick={() => handleDelete(todo.id)}>
                 <DeleteOutlined style={{ fontSize: '20px' }} />
@@ -99,7 +129,16 @@ const App = () => {
         ))}
       </ul>
 
-
+      {/* Modal for editing */}
+      <Modal
+        title="Edit Todo"
+        visible={isModalVisible}
+        onOk={handleOk}
+        onCancel={handleCancel}
+        okText="Save"
+      >
+        <Input value={editedText} onChange={(e) => setEditedText(e.target.value)} />
+      </Modal>
     </div>
   );
 };
