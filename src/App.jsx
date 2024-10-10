@@ -42,10 +42,9 @@ const reducer = (state, action) => {
 const App = () => {
   const [state, dispatch] = useReducer(reducer, initialState);
   const [inputValue, setInputValue] = useState('');
-  const [isModalVisible, setIsModalVisible] = useState(false); // Modalni ko‘rsatish holati
-  const [editTodo, setEditTodo] = useState(null); // Tahrirlanayotgan todo holati
-  const [editedText, setEditedText] = useState(''); // Modalda tahrirlanayotgan matn
-
+  const [isModalVisible, setIsModalVisible] = useState(false); 
+  const [editTodo, setEditTodo] = useState(null); 
+  const [editedText, setEditedText] = useState('');
   const handleCreate = () => {
     if (inputValue) {
       const newTodo = {
@@ -129,7 +128,6 @@ const App = () => {
         ))}
       </ul>
 
-      {/* Modal for editing */}
       <Modal
         title="Edit Todo"
         visible={isModalVisible}
